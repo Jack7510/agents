@@ -1,0 +1,458 @@
+# Search configuration for the daily technology briefing.
+# Keep secrets out of this file. It is safe to commit.
+
+official_sources:
+  ai:
+    - name: OpenAI News
+      url: https://openai.com/news/
+      watch_for: [model release, product launch, API, research, safety, enterprise]
+    - name: Anthropic News
+      url: https://www.anthropic.com/news
+      watch_for: [Claude, model release, enterprise, research, safety]
+    - name: Google DeepMind Blog
+      url: https://deepmind.google/discover/blog/
+      watch_for: [Gemini, AlphaFold, research, model release, science]
+    - name: Google Research Blog
+      url: https://research.google/blog/
+      watch_for: [AI research, machine learning, education, infrastructure]
+    - name: Microsoft AI Blog
+      url: https://blogs.microsoft.com/ai/
+      watch_for: [Copilot, Azure AI, model, enterprise, education]
+    - name: Meta AI Blog
+      url: https://ai.meta.com/blog/
+      watch_for: [Llama, open source model, research, infrastructure]
+    - name: Mistral AI News
+      url: https://mistral.ai/news/
+      watch_for: [model release, open model, enterprise, agent]
+    - name: Cohere Blog
+      url: https://cohere.com/blog
+      watch_for: [enterprise AI, model release, retrieval, agents]
+    - name: Hugging Face Blog
+      url: https://huggingface.co/blog
+      watch_for: [open source model, dataset, benchmark, tooling]
+
+  chips:
+    - name: NVIDIA Blog
+      url: https://blogs.nvidia.com/
+      watch_for: [GPU, accelerator, CUDA, inference, data center, robotics]
+    - name: NVIDIA Newsroom
+      url: https://nvidianews.nvidia.com/
+      watch_for: [GPU, AI chip, data center, partner, financial]
+    - name: AMD Newsroom
+      url: https://www.amd.com/en/newsroom.html
+      watch_for: [Instinct, EPYC, Ryzen AI, data center, accelerator]
+    - name: Intel Newsroom
+      url: https://www.intel.com/content/www/us/en/newsroom/home.html
+      watch_for: [Gaudi, Xeon, foundry, process, AI PC]
+    - name: TSMC News
+      url: https://pr.tsmc.com/english/news
+      watch_for: [process node, fab, advanced packaging, capacity]
+    - name: ASML Press Releases
+      url: https://www.asml.com/en/news/press-releases
+      watch_for: [EUV, High NA, lithography, chip manufacturing]
+    - name: Arm Newsroom
+      url: https://newsroom.arm.com/
+      watch_for: [CPU, edge AI, data center, IP, ecosystem]
+    - name: Qualcomm News
+      url: https://www.qualcomm.com/news
+      watch_for: [AI PC, edge AI, Snapdragon, automotive, modem]
+
+  new_energy:
+    - name: Tesla Blog
+      url: https://www.tesla.com/blog
+      watch_for: [battery, energy storage, autonomy, vehicle platform]
+    - name: BYD Global News
+      url: https://www.bydglobal.com/en/news
+      watch_for: [EV, battery, energy storage, overseas expansion]
+    - name: CATL News
+      url: https://www.catl.com/en/news/
+      watch_for: [battery chemistry, energy storage, fast charging, sodium-ion]
+    - name: IEA Energy and AI
+      url: https://www.iea.org/reports/energy-and-ai
+      watch_for: [AI power demand, grid, data center, energy efficiency]
+    - name: BloombergNEF
+      url: https://about.bnef.com/blog/
+      watch_for: [battery, solar, EV, grid, storage]
+    - name: RMI Insights
+      url: https://rmi.org/insight/
+      watch_for: [energy transition, grid, climate tech, electrification]
+
+  education:
+    - name: Google Education Blog
+      url: https://blog.google/outreach-initiatives/education/
+      watch_for: [AI education, classroom, learning tools, students]
+    - name: Microsoft Education Blog
+      url: https://educationblog.microsoft.com/en-us/
+      watch_for: [Copilot education, classroom, schools, learning]
+    - name: Khan Academy Blog
+      url: https://blog.khanacademy.org/
+      watch_for: [Khanmigo, tutoring, AI learning, assessment]
+    - name: Duolingo Blog
+      url: https://blog.duolingo.com/
+      watch_for: [AI language learning, product, personalization]
+    - name: Coursera Blog
+      url: https://blog.coursera.org/
+      watch_for: [AI courses, credentials, enterprise learning]
+
+blog_sources:
+  company_blogs:
+    - name: OpenAI News
+      url: https://openai.com/news/
+      type: official_company_blog
+      domains: [openai.com]
+      watch_for: [model release, product launch, API, research, safety, infrastructure]
+    - name: Anthropic News
+      url: https://www.anthropic.com/news
+      type: official_company_blog
+      domains: [anthropic.com]
+      watch_for: [Claude, model release, safety, research, enterprise]
+    - name: Google DeepMind Blog
+      url: https://deepmind.google/discover/blog/
+      type: official_company_blog
+      domains: [deepmind.google]
+      watch_for: [Gemini, science AI, model release, research]
+    - name: Google Research Blog
+      url: https://research.google/blog/
+      type: official_company_blog
+      domains: [research.google]
+      watch_for: [AI research, machine learning, education, infrastructure]
+    - name: Meta AI Blog
+      url: https://ai.meta.com/blog/
+      type: official_company_blog
+      domains: [ai.meta.com]
+      watch_for: [Llama, open source model, research, infrastructure]
+    - name: Microsoft AI Blog
+      url: https://blogs.microsoft.com/ai/
+      type: official_company_blog
+      domains: [blogs.microsoft.com]
+      watch_for: [Copilot, Azure AI, model, agent, education]
+    - name: Microsoft Research Blog
+      url: https://www.microsoft.com/en-us/research/blog/
+      type: official_company_blog
+      domains: [microsoft.com]
+      watch_for: [AI research, systems, education, health, agents]
+    - name: NVIDIA Technical Blog
+      url: https://developer.nvidia.com/blog/
+      type: official_company_blog
+      domains: [developer.nvidia.com]
+      watch_for: [GPU, CUDA, inference, data center, robotics, AI agents]
+    - name: NVIDIA Blog
+      url: https://blogs.nvidia.com/
+      type: official_company_blog
+      domains: [blogs.nvidia.com]
+      watch_for: [AI chip, data center, robotics, partner, product]
+    - name: AMD Blog
+      url: https://community.amd.com/t5/ai/bg-p/amd-ai-blog
+      type: official_company_blog
+      domains: [community.amd.com]
+      watch_for: [Instinct, ROCm, inference, accelerator, data center]
+    - name: Intel AI Blog
+      url: https://community.intel.com/t5/Blogs/Tech-Innovation/Artificial-Intelligence-AI/bg-p/artificial-intelligence
+      type: official_company_blog
+      domains: [community.intel.com]
+      watch_for: [Gaudi, Xeon, AI PC, inference, developer tools]
+    - name: Hugging Face Blog
+      url: https://huggingface.co/blog
+      type: official_company_blog
+      domains: [huggingface.co]
+      watch_for: [open model, dataset, benchmark, tooling, agents]
+    - name: Mistral AI News
+      url: https://mistral.ai/news/
+      type: official_company_blog
+      domains: [mistral.ai]
+      watch_for: [model release, open model, enterprise, agent]
+    - name: Cohere Blog
+      url: https://cohere.com/blog
+      type: official_company_blog
+      domains: [cohere.com]
+      watch_for: [enterprise AI, model release, retrieval, agents]
+    - name: Khan Academy Blog
+      url: https://blog.khanacademy.org/
+      type: official_company_blog
+      domains: [blog.khanacademy.org]
+      watch_for: [Khanmigo, AI tutoring, education, assessment]
+    - name: Duolingo Blog
+      url: https://blog.duolingo.com/
+      type: official_company_blog
+      domains: [blog.duolingo.com]
+      watch_for: [AI language learning, personalization, education product]
+
+  kol_blogs:
+    - name: Andrej Karpathy
+      url: https://karpathy.ai/
+      type: personal_blog
+      domains: [karpathy.ai]
+      watch_for: [LLM, agents, AI education, developer tools, model architecture]
+    - name: Simon Willison
+      url: https://simonwillison.net/
+      type: personal_blog
+      domains: [simonwillison.net]
+      watch_for: [LLM tools, agents, security, prompt injection, open source]
+    - name: Andrew Ng - The Batch
+      url: https://www.deeplearning.ai/the-batch/
+      type: newsletter_blog
+      domains: [deeplearning.ai]
+      watch_for: [AI applications, education, agents, startup trends]
+    - name: Lilian Weng
+      url: https://lilianweng.github.io/
+      type: personal_blog
+      domains: [lilianweng.github.io]
+      watch_for: [agents, alignment, model architecture, RL, LLM systems]
+    - name: Sebastian Raschka
+      url: https://sebastianraschka.com/blog/
+      type: personal_blog
+      domains: [sebastianraschka.com]
+      watch_for: [LLM research, model training, education, coding]
+    - name: Chip Huyen
+      url: https://huyenchip.com/blog/
+      type: personal_blog
+      domains: [huyenchip.com]
+      watch_for: [AI engineering, ML systems, agents, evaluation]
+    - name: Eugene Yan
+      url: https://eugeneyan.com/writing/
+      type: personal_blog
+      domains: [eugeneyan.com]
+      watch_for: [recommender systems, LLM applications, evaluation, ML systems]
+    - name: Jay Alammar
+      url: https://jalammar.github.io/
+      type: personal_blog
+      domains: [jalammar.github.io]
+      watch_for: [LLM explainers, transformers, AI education]
+    - name: Jeremy Howard
+      url: https://www.answer.ai/posts/
+      type: company_founder_blog
+      domains: [answer.ai]
+      watch_for: [AI education, open models, developer tools, research]
+    - name: Latent Space
+      url: https://www.latent.space/
+      type: newsletter_blog
+      domains: [latent.space]
+      watch_for: [AI engineering, agents, founders, model releases]
+    - name: Ben Thompson - Stratechery
+      url: https://stratechery.com/
+      type: analyst_blog
+      domains: [stratechery.com]
+      watch_for: [AI business strategy, platforms, chips, big tech]
+    - name: Benedict Evans
+      url: https://www.ben-evans.com/benedictevans
+      type: analyst_blog
+      domains: [ben-evans.com]
+      watch_for: [AI platforms, big tech, market structure, consumer tech]
+
+media_sources:
+  global:
+    - name: Reuters Technology
+      url: https://www.reuters.com/technology/
+      watch_for: [company launch, regulation, chips, AI, energy]
+    - name: The Verge AI
+      url: https://www.theverge.com/ai-artificial-intelligence
+      watch_for: [AI product, model, platform, consumer technology]
+    - name: TechCrunch AI
+      url: https://techcrunch.com/category/artificial-intelligence/
+      watch_for: [startup, funding, product launch, model release]
+    - name: MIT Technology Review AI
+      url: https://www.technologyreview.com/topic/artificial-intelligence/
+      watch_for: [research, industry analysis, AI risk, chips]
+    - name: IEEE Spectrum AI
+      url: https://spectrum.ieee.org/artificial-intelligence
+      watch_for: [engineering, robotics, chips, research]
+    - name: SemiAnalysis
+      url: https://semianalysis.com/
+      watch_for: [AI chips, data centers, inference, supply chain]
+    - name: The Decoder
+      url: https://the-decoder.com/
+      watch_for: [AI model, product, research, regulation]
+    - name: VentureBeat AI
+      url: https://venturebeat.com/category/ai/
+      watch_for: [enterprise AI, agents, model deployment]
+
+  china:
+    - name: 36Kr
+      url: https://36kr.com/
+      watch_for: [AI, chips, new energy, education, startup]
+    - name: LatePost
+      url: https://www.latepost.com/
+      watch_for: [big tech, startups, AI, EV, chips]
+    - name: Jiqizhixin
+      url: https://www.jiqizhixin.com/
+      watch_for: [AI research, model, startup, open source]
+    - name: Leiphone
+      url: https://www.leiphone.com/
+      watch_for: [AI, chips, robotics, smart vehicles]
+    - name: QbitAI
+      url: https://www.qbitai.com/
+      watch_for: [AI model, paper, open source, product]
+
+opinion_leaders:
+  ai_research_and_builders:
+    - name: Andrej Karpathy
+      urls:
+        - https://karpathy.ai/
+        - https://x.com/karpathy
+        - https://github.com/karpathy
+      watch_for: [LLM, agents, AI education, developer tools, model architecture]
+    - name: Andrew Ng
+      urls:
+        - https://www.deeplearning.ai/the-batch/
+        - https://x.com/AndrewYNg
+      watch_for: [AI applications, education, agents, startup trends]
+    - name: Yann LeCun
+      urls:
+        - https://x.com/ylecun
+      watch_for: [AI research, world models, open source, industry debate]
+    - name: Fei-Fei Li
+      urls:
+        - https://x.com/drfeifei
+      watch_for: [spatial intelligence, AI research, education, policy]
+    - name: Jim Fan
+      urls:
+        - https://x.com/DrJimFan
+      watch_for: [agents, robotics, simulation, foundation models]
+    - name: Simon Willison
+      urls:
+        - https://simonwillison.net/
+        - https://github.com/simonw
+      watch_for: [LLM tools, agents, security, open source]
+    - name: Harrison Chase
+      urls:
+        - https://x.com/hwchase17
+        - https://github.com/hwchase17
+      watch_for: [LangChain, agents, LLM applications, developer tooling]
+    - name: Jerry Liu
+      urls:
+        - https://x.com/jerryjliu0
+        - https://github.com/jerryjliu
+      watch_for: [LlamaIndex, RAG, agents, enterprise AI]
+
+  company_leaders:
+    - name: Sam Altman
+      urls: [https://x.com/sama]
+      watch_for: [OpenAI, infrastructure, models, policy]
+    - name: Dario Amodei
+      urls: [https://www.anthropic.com/news]
+      watch_for: [Anthropic, AI safety, models, industry outlook]
+    - name: Demis Hassabis
+      urls: [https://x.com/demishassabis]
+      watch_for: [DeepMind, science AI, Gemini, research]
+    - name: Jensen Huang
+      urls: [https://nvidianews.nvidia.com/]
+      watch_for: [AI chips, data center, robotics, GPU roadmap]
+    - name: Lisa Su
+      urls: [https://x.com/LisaSu]
+      watch_for: [AMD, AI chips, data center, compute]
+    - name: Elon Musk
+      urls: [https://x.com/elonmusk]
+      watch_for: [xAI, Tesla energy, autonomy, robotics]
+
+github_watchlist:
+  ai_frameworks_and_agents:
+    - repo: openai/openai-agents-python
+      url: https://github.com/openai/openai-agents-python
+      watch_for: [release, agents SDK, examples, breaking change]
+    - repo: langchain-ai/langchain
+      url: https://github.com/langchain-ai/langchain
+      watch_for: [release, agents, integrations, developer tooling]
+    - repo: run-llama/llama_index
+      url: https://github.com/run-llama/llama_index
+      watch_for: [release, RAG, agents, data connectors]
+    - repo: huggingface/transformers
+      url: https://github.com/huggingface/transformers
+      watch_for: [model support, release, inference, tooling]
+    - repo: vllm-project/vllm
+      url: https://github.com/vllm-project/vllm
+      watch_for: [inference, performance, serving, release]
+    - repo: ollama/ollama
+      url: https://github.com/ollama/ollama
+      watch_for: [local AI, model support, release]
+    - repo: ggml-org/llama.cpp
+      url: https://github.com/ggml-org/llama.cpp
+      watch_for: [local inference, quantization, hardware acceleration]
+    - repo: openclaw/openclaw
+      url: https://github.com/openclaw/openclaw
+      watch_for: [release, agents, robotics, open source]
+
+  chips_and_infra:
+    - repo: triton-lang/triton
+      url: https://github.com/triton-lang/triton
+      watch_for: [compiler, GPU kernels, release, performance]
+    - repo: pytorch/pytorch
+      url: https://github.com/pytorch/pytorch
+      watch_for: [release, compiler, distributed, accelerator support]
+    - repo: jax-ml/jax
+      url: https://github.com/jax-ml/jax
+      watch_for: [release, TPU, compiler, distributed training]
+    - repo: kubernetes/kubernetes
+      url: https://github.com/kubernetes/kubernetes
+      watch_for: [AI infrastructure, scheduling, GPU, release]
+
+search_queries:
+  blog_first:
+    - 'site:openai.com/news/ AI OR model OR product OR research'
+    - 'site:anthropic.com/news Claude OR model OR safety OR research'
+    - 'site:deepmind.google/discover/blog/ Gemini OR model OR research'
+    - 'site:research.google/blog/ AI OR machine learning OR education'
+    - 'site:ai.meta.com/blog/ Llama OR AI OR research OR open source'
+    - 'site:blogs.microsoft.com/ai/ Copilot OR Azure AI OR model'
+    - 'site:developer.nvidia.com/blog/ AI OR inference OR CUDA OR GPU'
+    - 'site:blogs.nvidia.com/ AI OR data center OR GPU'
+    - 'site:huggingface.co/blog model OR dataset OR benchmark OR agent'
+    - 'site:karpathy.ai LLM OR agent OR AI education'
+    - 'site:simonwillison.net LLM OR agents OR AI'
+    - 'site:deeplearning.ai/the-batch AI OR agents OR education'
+    - 'site:lilianweng.github.io agents OR LLM OR alignment'
+    - 'site:huyenchip.com/blog AI engineering OR agents OR evaluation'
+    - 'site:eugeneyan.com/writing LLM OR evaluation OR recommender'
+
+  daily_general:
+    - '"AI model" OR "new model" launch today'
+    - '"AI chip" OR accelerator OR GPU announced today'
+    - '"data center" AI power demand energy today'
+    - '"AI education" product launch today'
+    - '"open source" AI agent GitHub release today'
+
+  company_specific:
+    - 'OpenAI OR Anthropic OR Google DeepMind OR Meta AI new model product'
+    - 'NVIDIA OR AMD OR Intel OR TSMC OR ASML AI chip data center'
+    - 'Tesla OR BYD OR CATL battery energy storage AI data center'
+    - 'Khan Academy OR Duolingo OR Coursera AI education product'
+
+  chinese:
+    - 'AI 大模型 新产品 发布 今天'
+    - '芯片 AI 加速器 数据中心 发布 今天'
+    - '新能源 电池 储能 AI 数据中心 今天'
+    - 'AI 教育 产品 发布 今天'
+
+selection_keywords:
+  strong_positive:
+    - launched
+    - announced
+    - released
+    - open sourced
+    - generally available
+    - benchmark
+    - production
+    - partnership
+    - acquisition
+    - funding
+    - regulation
+    - model card
+    - technical report
+    - 发布
+    - 推出
+    - 开源
+    - 上线
+    - 量产
+    - 商用
+    - 融资
+    - 合作
+
+  weak_or_skip:
+    - rumor
+    - teaser
+    - sponsored
+    - generic thought leadership
+    - minor UI update
+    - 未证实
+    - 传闻
+    - 软文
+    - 营销稿
