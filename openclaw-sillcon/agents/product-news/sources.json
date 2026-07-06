@@ -1,0 +1,197 @@
+{
+  "keywords": [
+    "AI",
+    "agent",
+    "agents",
+    "artificial intelligence",
+    "LLM",
+    "model",
+    "robot",
+    "robotics",
+    "embodied AI",
+    "humanoid",
+    "autonomous",
+    "launch",
+    "released",
+    "release",
+    "beta",
+    "open source",
+    "developer tool",
+    "产品发布",
+    "新品",
+    "开源",
+    "机器人",
+    "具身智能",
+    "人形机器人",
+    "自动驾驶",
+    "大模型",
+    "智能体"
+  ],
+  "max_search_queries": 30,
+  "watched_entities": [
+    {
+      "name": "Hugging Face",
+      "category": "ai_platform",
+      "terms": ["Hugging Face", "Transformers", "Diffusers", "Inference Providers"]
+    },
+    {
+      "name": "地平线机器人",
+      "category": "robotics",
+      "terms": ["地平线机器人", "Horizon Robotics", "征程", "Journey"]
+    },
+    {
+      "name": "地瓜机器人",
+      "category": "robotics",
+      "terms": ["地瓜机器人", "D-Robotics"]
+    },
+    {
+      "name": "智源研究院",
+      "category": "ai_lab",
+      "terms": ["智源", "智源研究院", "BAAI", "Beijing Academy of Artificial Intelligence"]
+    },
+    {
+      "name": "优必选",
+      "category": "robotics",
+      "terms": ["优必选", "UBTECH", "Walker S", "Walker S2"]
+    },
+    {
+      "name": "宇树科技",
+      "category": "robotics",
+      "terms": ["宇树科技", "Unitree"]
+    },
+    {
+      "name": "云深处科技",
+      "category": "robotics",
+      "terms": ["云深处科技", "Deep Robotics"]
+    },
+    {
+      "name": "Figure AI",
+      "category": "robotics",
+      "terms": ["Figure AI", "Figure robot"]
+    },
+    {
+      "name": "Agility Robotics",
+      "category": "robotics",
+      "terms": ["Agility Robotics", "Digit robot"]
+    },
+    {
+      "name": "Physical Intelligence",
+      "category": "robotics",
+      "terms": ["Physical Intelligence", "pi0 robot"]
+    }
+  ],
+  "rss": [
+    {
+      "name": "OpenAI Blog",
+      "url": "https://openai.com/news/rss.xml",
+      "category": "tech_giant",
+      "weight": 5
+    },
+    {
+      "name": "Google DeepMind Blog",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "category": "tech_giant",
+      "weight": 4
+    },
+    {
+      "name": "Microsoft AI Blog",
+      "url": "https://www.microsoft.com/en-us/ai/blog/feed/",
+      "category": "tech_giant",
+      "weight": 4
+    },
+    {
+      "name": "NVIDIA Blog",
+      "url": "https://blogs.nvidia.com/feed/",
+      "category": "tech_giant",
+      "weight": 4
+    },
+    {
+      "name": "Hugging Face Blog",
+      "url": "https://huggingface.co/blog/feed.xml",
+      "category": "open_source",
+      "weight": 4
+    },
+    {
+      "name": "TechCrunch AI",
+      "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+      "category": "media",
+      "weight": 3
+    },
+    {
+      "name": "VentureBeat AI",
+      "url": "https://venturebeat.com/category/ai/feed/",
+      "category": "media",
+      "weight": 3
+    },
+    {
+      "name": "IEEE Spectrum Robotics",
+      "url": "https://spectrum.ieee.org/rss/robotics/fulltext",
+      "category": "media",
+      "weight": 3
+    },
+    {
+      "name": "The Robot Report",
+      "url": "https://www.therobotreport.com/feed/",
+      "category": "media",
+      "weight": 3
+    },
+    {
+      "name": "36氪",
+      "url": "https://www.36kr.com/feed",
+      "category": "media_cn",
+      "weight": 3
+    }
+  ],
+  "github_releases": [
+    {
+      "name": "vLLM",
+      "repo": "vllm-project/vllm",
+      "category": "open_source",
+      "weight": 4
+    },
+    {
+      "name": "LlamaIndex",
+      "repo": "run-llama/llama_index",
+      "category": "open_source",
+      "weight": 3
+    },
+    {
+      "name": "LangChain",
+      "repo": "langchain-ai/langchain",
+      "category": "open_source",
+      "weight": 3
+    },
+    {
+      "name": "Open WebUI",
+      "repo": "open-webui/open-webui",
+      "category": "open_source",
+      "weight": 3
+    },
+    {
+      "name": "ROS 2",
+      "repo": "ros2/ros2",
+      "category": "robotics",
+      "weight": 3
+    }
+  ],
+  "search_queries": [
+    "AI product launch startup today",
+    "robotics startup product launch",
+    "open source AI release",
+    "AI agent product release",
+    "humanoid robot product release",
+    "AI 产品发布 初创 公司",
+    "机器人 公司 新品 发布",
+    "具身智能 产品 发布",
+    "人形机器人 产品 发布",
+    "开源 AI 项目 发布",
+    "site:36kr.com AI 机器人 产品 发布"
+  ],
+  "search_templates": [
+    "{term} product launch OR release",
+    "{term} AI robotics product release",
+    "{term} 新品 发布",
+    "{term} 产品 发布",
+    "{term} 机器人 发布"
+  ]
+}

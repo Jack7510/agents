@@ -1,7 +1,12 @@
-.PHONY: test lint
+PYTHON ?= python
+
+.PHONY: test lint product-news-once
 
 test:
-	python3 -m unittest discover -s tests
+	$(PYTHON) -m unittest discover -s tests
 
 lint:
-	PYTHONPYCACHEPREFIX=.pycache python3 -m compileall scripts tests
+	PYTHONPYCACHEPREFIX=.pycache $(PYTHON) -m compileall scripts tests
+
+product-news-once:
+	$(PYTHON) scripts/send_product_news.py --dry-run

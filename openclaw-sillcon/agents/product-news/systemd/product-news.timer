@@ -1,0 +1,10 @@
+[Unit]
+Description=每天 02:00 运行 OpenClaw 产品新闻日报
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+Unit=product-news.service
+
+[Install]
+WantedBy=timers.target

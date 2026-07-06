@@ -14,11 +14,17 @@ No build system is present yet. As tooling is added, prefer stable wrapper comma
 - `make deploy-agent AGENT=<name>`: deploy one Agent application after tests pass.
 - `make host-status`: print OpenClaw service, disk, memory, and process status.
 
+Local Python development uses the active conda `base` environment by default. Use `python` for local commands and Makefile targets; reserve explicit `/usr/bin/python3` or `python3` for remote host commands where conda is not part of the runtime contract.
+
 Document package-native commands in each Agent README, for example `npm test`, `pytest`, or `go test ./...`.
 
 ## Coding Style & Naming Conventions
 
 Follow each language formatter once configured. Use `snake_case` for Python files and functions, `camelCase` for JavaScript/TypeScript variables, `PascalCase` for classes and components, and `kebab-case` for script and Agent directories. Shell scripts should start with `set -euo pipefail`, accept explicit arguments, and avoid hard-coded destructive paths.
+
+## Documentation Language
+
+Use Chinese as the default language for repository documentation, Agent READMEs, operational notes, and deployment guides. Keep commands, environment variable names, API names, and code identifiers in their original spelling.
 
 ## Testing Guidelines
 
