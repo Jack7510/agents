@@ -1,0 +1,125 @@
+{
+  "keywords": [
+    "large language model",
+    "LLM",
+    "reasoning",
+    "agent",
+    "agents",
+    "tool use",
+    "RAG",
+    "post-training",
+    "reinforcement learning",
+    "inference",
+    "serving",
+    "multimodal",
+    "vision-language",
+    "VLM",
+    "VLA",
+    "robot",
+    "robotics",
+    "embodied AI",
+    "humanoid",
+    "manipulation",
+    "policy learning",
+    "diffusion policy",
+    "大模型",
+    "智能体",
+    "推理",
+    "多模态",
+    "机器人",
+    "具身智能",
+    "人形机器人"
+  ],
+  "max_search_queries": 20,
+  "watched_topics": [
+    {
+      "name": "LLM reasoning",
+      "category": "llm",
+      "terms": ["large language model reasoning", "LLM reasoning", "test-time scaling"]
+    },
+    {
+      "name": "Agents",
+      "category": "agent",
+      "terms": ["AI agent paper", "tool-use agent", "computer use agent"]
+    },
+    {
+      "name": "Embodied AI",
+      "category": "robotics",
+      "terms": ["embodied AI", "vision language action", "robot foundation model"]
+    },
+    {
+      "name": "Humanoid Robotics",
+      "category": "robotics",
+      "terms": ["humanoid robot learning", "robot manipulation policy"]
+    },
+    {
+      "name": "Inference Systems",
+      "category": "systems",
+      "terms": ["LLM inference", "LLM serving", "KV cache", "speculative decoding"]
+    }
+  ],
+  "arxiv": [
+    {
+      "name": "arXiv LLM / NLP",
+      "query": "cat:cs.CL AND (all:\"large language model\" OR all:LLM OR all:reasoning OR all:agent)",
+      "category": "llm",
+      "weight": 5,
+      "max_results": 50
+    },
+    {
+      "name": "arXiv ML",
+      "query": "cat:cs.LG AND (all:\"large language model\" OR all:reasoning OR all:\"reinforcement learning\" OR all:\"post-training\")",
+      "category": "llm",
+      "weight": 4,
+      "max_results": 50
+    },
+    {
+      "name": "arXiv Robotics",
+      "query": "cat:cs.RO AND (all:robot OR all:robotics OR all:\"embodied AI\" OR all:humanoid OR all:manipulation)",
+      "category": "robotics",
+      "weight": 5,
+      "max_results": 50
+    },
+    {
+      "name": "arXiv Vision / Multimodal",
+      "query": "cat:cs.CV AND (all:multimodal OR all:\"vision language\" OR all:VLA OR all:\"embodied AI\")",
+      "category": "multimodal",
+      "weight": 4,
+      "max_results": 40
+    },
+    {
+      "name": "arXiv Systems",
+      "query": "cat:cs.DC AND (all:LLM OR all:inference OR all:serving OR all:\"speculative decoding\" OR all:\"KV cache\")",
+      "category": "systems",
+      "weight": 3,
+      "max_results": 30
+    }
+  ],
+  "rss": [
+    {
+      "name": "Google DeepMind Blog",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "category": "research_blog",
+      "weight": 3
+    },
+    {
+      "name": "OpenAI Research",
+      "url": "https://openai.com/news/rss.xml",
+      "category": "research_blog",
+      "weight": 3
+    }
+  ],
+  "search_queries": [
+    "site:arxiv.org/abs large language model reasoning robotics",
+    "site:arxiv.org/abs embodied AI robot foundation model",
+    "site:github.com arxiv LLM reasoning paper code",
+    "site:github.com robot foundation model paper code",
+    "大模型 论文 代码 推理",
+    "具身智能 机器人 论文 代码"
+  ],
+  "search_templates": [
+    "{term} arXiv paper code",
+    "{term} new paper project page",
+    "{term} 论文 代码"
+  ]
+}

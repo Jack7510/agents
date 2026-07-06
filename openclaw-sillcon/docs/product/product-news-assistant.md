@@ -11,8 +11,6 @@
 ```text
 agents/product-news/SKILL.md
 agents/product-news/sources.json
-agents/product-news/systemd/product-news.service
-agents/product-news/systemd/product-news.timer
 scripts/send_product_news.py
 tests/test_product_news.py
 ```
@@ -98,65 +96,40 @@ python3 ~/.openclaw/workspace/skills/product-news/scripts/send_product_news.py
 ssh admin@47.88.66.246 'mkdir -p ~/.openclaw/workspace/skills-src/product-news/scripts'
 scp agents/product-news/SKILL.md admin@47.88.66.246:/home/admin/.openclaw/workspace/skills-src/product-news/
 scp agents/product-news/sources.json admin@47.88.66.246:/home/admin/.openclaw/workspace/skills-src/product-news/
+scp scripts/briefing_utils.py admin@47.88.66.246:/home/admin/.openclaw/workspace/skills-src/product-news/scripts/
+scp scripts/qq_mail_tool.py admin@47.88.66.246:/home/admin/.openclaw/workspace/skills-src/product-news/scripts/
 scp scripts/send_product_news.py admin@47.88.66.246:/home/admin/.openclaw/workspace/skills-src/product-news/scripts/
 ssh admin@47.88.66.246 '~/.npm-global/bin/openclaw skills install /home/admin/.openclaw/workspace/skills-src/product-news --as product-news --force'
 ```
 
-## systemd 用户定时器
+## OpenClaw cron 定时任务
 
-创建 `~/.config/systemd/user/product-news.service`：
+产品新闻助手使用 OpenClaw 的 cron 机制。
 
-```ini
-[Unit]
-Description=OpenClaw 产品新闻日报
-
-[Service]
-Type=oneshot
-WorkingDirectory=%h/.openclaw/workspace
-EnvironmentFile=%h/.openclaw/.env
-ExecStart=/usr/bin/python3 %h/.openclaw/workspace/skills/product-news/scripts/send_product_news.py --config %h/.openclaw/workspace/skills/product-news/sources.json --archive-root %h/.openclaw/workspace/data/product-news
-```
-
-创建 `~/.config/systemd/user/product-news.timer`：
-
-```ini
-[Unit]
-Description=每天 02:00 运行 OpenClaw 产品新闻日报
-
-[Timer]
-OnCalendar=*-*-* 02:00:00
-Persistent=true
-Unit=product-news.service
-
-[Install]
-WantedBy=timers.target
-```
-
-仓库中也提供了对应模板：
-
-```text
-agents/product-news/systemd/product-news.service
-agents/product-news/systemd/product-news.timer
-```
-
-启用定时器：
+创建每天 `Asia/Shanghai` 02:00 执行的 cron 任务：
 
 ```bash
-systemctl --user daemon-reload
-systemctl --user enable --now product-news.timer
-systemctl --user list-timers product-news.timer
+ssh admin@47.88.66.246 '~/.npm-global/bin/openclaw cron add --name product-news --cron "0 2 * * *" --tz Asia/Shanghai --command-cwd "$HOME/.openclaw/workspace" --command "set -a; . ~/.openclaw/.env; set +a; python3 ~/.openclaw/workspace/skills/product-news/scripts/send_product_news.py --config ~/.openclaw/workspace/skills/product-news/sources.json --archive-root ~/.openclaw/workspace/data/product-news" --timeout-seconds 300'
 ```
 
-查看运行日志：
+查看任务：
 
 ```bash
-journalctl --user -u product-news.service -n 100 --no-pager
+ssh admin@47.88.66.246 '~/.npm-global/bin/openclaw cron list'
 ```
+
+手动触发验证：
+
+```bash
+ssh admin@47.88.66.246 '~/.npm-global/bin/openclaw cron run product-news'
+```
+
+如果主机上曾经启用过其他同名定时入口，应先禁用并删除，避免重复发送邮件。
 
 ## 仍需补充的信息
 
 - 确认 `SMTP_USER` 中的发件邮箱，以及 `SMTP_PASSWORD` 中的 QQ 邮箱 SMTP 授权码。
-- 确认服务器定时任务是否按 `Asia/Shanghai` 的 02:00 执行。
+- 确认 OpenClaw cron 是否按 `Asia/Shanghai` 的 02:00 执行。
 - 决定是否启用搜索接口；如启用，提供 Brave 或 Tavily 的 API Key。
 - 把必须关注的公司、产品、GitHub 仓库和中文来源补充到 `agents/product-news/sources.json`。
 - 确认日报覆盖范围：只看英文来源、只看中文来源，还是中英文都看。

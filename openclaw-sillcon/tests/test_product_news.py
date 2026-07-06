@@ -10,12 +10,14 @@ from scripts.send_product_news import (
     NewsItem,
     apply_env_aliases,
     archive_briefing,
+    build_email_message,
     build_search_queries,
     dedupe_key,
     load_env_file,
     parse_rss_items,
     parse_datetime,
     render_briefing,
+    render_email_html,
     score_item,
     select_top_items,
 )
@@ -129,6 +131,66 @@ class ProductNewsTests(unittest.TestCase):
         self.assertIn("## 今日主要发现", body)
         self.assertIn("Open source AI release", body)
         self.assertIn("## 趋势观察", body)
+
+    def test_render_briefing_accepts_custom_report_name(self) -> None:
+        now = datetime(2026, 7, 6, 9, 0, tzinfo=ZoneInfo("Asia/Shanghai"))
+
+        subject, body = render_briefing(
+            [],
+            run_date=now,
+            briefing={
+                "report_name": "OpenClaw 战略信息简报",
+                "findings_heading": "关键战略信号",
+                "no_items_message": "本轮没有筛选出足够高置信度的战略观点信号。",
+            },
+        )
+
+        self.assertEqual(subject, "OpenClaw 战略信息简报 - 2026-07-06")
+        self.assertIn("## 关键战略信号", body)
+        self.assertIn("战略观点信号", body)
+
+    def test_render_email_html_formats_markdown_briefing(self) -> None:
+        html = render_email_html(
+            "\n".join(
+                [
+                    "# 产品新闻助手日报 - 2026-07-06",
+                    "",
+                    "## 今日主要发现",
+                    "",
+                    "1. Open source AI release",
+                    "   - 类型：open_source",
+                    "   - 链接：https://example.com/release",
+                    "",
+                    "## 趋势观察",
+                    "",
+                    "- 今日高相关信号集中在：open_source。",
+                ]
+            ),
+            "产品新闻助手日报 - 2026-07-06",
+        )
+
+        self.assertIn("<h1>产品新闻助手日报 - 2026-07-06</h1>", html)
+        self.assertIn('<section class="finding">', html)
+        self.assertIn('<span class="label">类型</span>', html)
+        self.assertIn('<a href="https://example.com/release">https://example.com/release</a>', html)
+
+    def test_build_email_message_is_multipart_with_html_alternative(self) -> None:
+        import os
+
+        os.environ["SMTP_USER"] = "sender@example.com"
+        os.environ["PRODUCT_NEWS_EMAIL_TO"] = "daily@example.com"
+        try:
+            message = build_email_message("产品新闻助手日报 - 2026-07-06", "# 标题\n")
+
+            self.assertTrue(message.is_multipart())
+            self.assertEqual(message.get_content_type(), "multipart/alternative")
+            self.assertIsNotNone(message.get_body(("plain",)))
+            html_part = message.get_body(("html",))
+            self.assertIsNotNone(html_part)
+            self.assertIn("<h1>标题</h1>", html_part.get_content())
+        finally:
+            os.environ.pop("SMTP_USER", None)
+            os.environ.pop("PRODUCT_NEWS_EMAIL_TO", None)
 
     def test_archive_briefing_writes_date_file(self) -> None:
         now = datetime(2026, 7, 6, 9, 0, tzinfo=ZoneInfo("Asia/Shanghai"))

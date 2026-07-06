@@ -1,0 +1,205 @@
+{
+  "briefing": {
+    "report_name": "OpenClaw 战略信息简报",
+    "findings_heading": "关键战略信号",
+    "no_items_message": "本轮没有筛选出足够高置信度的战略观点信号。",
+    "empty_action": "建议检查高管/研究员来源列表、搜索接口配额和脚本日志；也可以延长 lookback-hours。",
+    "trend_intro": "本轮高相关信号集中在",
+    "source_policy": "搜索接口结果仅作为补漏，正式判断优先采用原始访谈、个人博客、官方博客、论文和 GitHub 讨论。",
+    "follow_up_note": "对二手转述、无完整文字稿、无发布时间或营销改写较重的内容保持低置信度，必要时人工打开原文确认。"
+  },
+  "keywords": [
+    "AI strategy",
+    "AI agents",
+    "agentic",
+    "robotics",
+    "embodied AI",
+    "open source AI",
+    "developer platform",
+    "inference",
+    "foundation model",
+    "research agenda",
+    "roadmap",
+    "interview",
+    "podcast",
+    "keynote",
+    "CTO",
+    "CEO",
+    "chief scientist",
+    "开源",
+    "智能体",
+    "具身智能",
+    "机器人",
+    "访谈",
+    "播客",
+    "演讲",
+    "路线图",
+    "战略"
+  ],
+  "max_search_queries": 60,
+  "watched_entities": [
+    {
+      "name": "Sam Altman",
+      "category": "tech_ceo",
+      "terms": ["Sam Altman", "OpenAI CEO"]
+    },
+    {
+      "name": "Mark Zuckerberg",
+      "category": "tech_ceo",
+      "terms": ["Mark Zuckerberg", "Meta AI strategy"]
+    },
+    {
+      "name": "Demis Hassabis",
+      "category": "research_leader",
+      "terms": ["Demis Hassabis", "Google DeepMind CEO"]
+    },
+    {
+      "name": "Jensen Huang",
+      "category": "tech_ceo",
+      "terms": ["Jensen Huang", "NVIDIA CEO"]
+    },
+    {
+      "name": "Satya Nadella",
+      "category": "tech_ceo",
+      "terms": ["Satya Nadella", "Microsoft AI"]
+    },
+    {
+      "name": "Dario Amodei",
+      "category": "tech_ceo",
+      "terms": ["Dario Amodei", "Anthropic CEO"]
+    },
+    {
+      "name": "Yann LeCun",
+      "category": "research_leader",
+      "terms": ["Yann LeCun", "Meta chief scientist"]
+    },
+    {
+      "name": "Andrej Karpathy",
+      "category": "open_source_influencer",
+      "terms": ["Andrej Karpathy", "Eureka Labs"]
+    },
+    {
+      "name": "Simon Willison",
+      "category": "open_source_influencer",
+      "terms": ["Simon Willison", "LLM open source"]
+    },
+    {
+      "name": "Clem Delangue",
+      "category": "open_source_influencer",
+      "terms": ["Clem Delangue", "Hugging Face CEO"]
+    },
+    {
+      "name": "Pieter Abbeel",
+      "category": "research_leader",
+      "terms": ["Pieter Abbeel", "robotics foundation models"]
+    },
+    {
+      "name": "Fei-Fei Li",
+      "category": "research_leader",
+      "terms": ["Fei-Fei Li", "spatial intelligence"]
+    }
+  ],
+  "rss": [
+    {
+      "name": "OpenAI News",
+      "url": "https://openai.com/news/rss.xml",
+      "category": "tech_giant",
+      "weight": 5
+    },
+    {
+      "name": "Google DeepMind Blog",
+      "url": "https://deepmind.google/blog/rss.xml",
+      "category": "research_lab",
+      "weight": 5
+    },
+    {
+      "name": "Microsoft AI Blog",
+      "url": "https://www.microsoft.com/en-us/ai/blog/feed/",
+      "category": "tech_giant",
+      "weight": 4
+    },
+    {
+      "name": "NVIDIA Blog",
+      "url": "https://blogs.nvidia.com/feed/",
+      "category": "tech_giant",
+      "weight": 4
+    },
+    {
+      "name": "Hugging Face Blog",
+      "url": "https://huggingface.co/blog/feed.xml",
+      "category": "open_source",
+      "weight": 4
+    },
+    {
+      "name": "Simon Willison Blog",
+      "url": "https://simonwillison.net/atom/everything/",
+      "category": "open_source_influencer",
+      "weight": 4
+    },
+    {
+      "name": "The Gradient",
+      "url": "https://thegradient.pub/rss/",
+      "category": "research_analysis",
+      "weight": 3
+    },
+    {
+      "name": "Latent Space",
+      "url": "https://www.latent.space/feed",
+      "category": "interview",
+      "weight": 3
+    }
+  ],
+  "github_releases": [
+    {
+      "name": "vLLM",
+      "repo": "vllm-project/vllm",
+      "category": "model_infra",
+      "weight": 3
+    },
+    {
+      "name": "Transformers",
+      "repo": "huggingface/transformers",
+      "category": "open_source",
+      "weight": 3
+    },
+    {
+      "name": "LlamaIndex",
+      "repo": "run-llama/llama_index",
+      "category": "agent_framework",
+      "weight": 2
+    },
+    {
+      "name": "LangChain",
+      "repo": "langchain-ai/langchain",
+      "category": "agent_framework",
+      "weight": 2
+    },
+    {
+      "name": "ROS 2",
+      "repo": "ros2/ros2",
+      "category": "robotics",
+      "weight": 2
+    }
+  ],
+  "search_queries": [
+    "AI CEO interview strategy agent open source",
+    "CTO interview AI agents robotics roadmap",
+    "chief scientist interview foundation models robotics",
+    "open source AI maintainer blog agents",
+    "AI researcher podcast robotics foundation models",
+    "科技公司 CEO AI 战略 访谈",
+    "CTO AI Agent 路线图 访谈",
+    "开源 AI 意见领袖 博客",
+    "资深研究员 具身智能 访谈",
+    "机器人 foundation models 研究员 演讲"
+  ],
+  "search_templates": [
+    "{term} interview AI strategy",
+    "{term} podcast AI agents",
+    "{term} blog open source AI",
+    "{term} keynote roadmap AI",
+    "{term} 访谈 AI 战略",
+    "{term} 博客 开源 AI",
+    "{term} 演讲 智能体 机器人"
+  ]
+}

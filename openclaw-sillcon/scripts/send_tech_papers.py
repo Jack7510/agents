@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect product-news signals and email a concise daily briefing."""
+"""Collect technical-paper signals and email a concise daily briefing."""
 
 from __future__ import annotations
 
@@ -23,40 +23,44 @@ from zoneinfo import ZoneInfo
 try:
     from . import briefing_utils as utils
     from . import qq_mail_tool
-except ImportError:  # pragma: no cover - supports `python scripts/send_product_news.py`.
+except ImportError:  # pragma: no cover - supports `python scripts/send_tech_papers.py`.
     import briefing_utils as utils
     import qq_mail_tool
 
 
-DEFAULT_CONFIG = Path("agents/product-news/sources.json")
-DEFAULT_ARCHIVE_ROOT = Path("data/product-news")
+DEFAULT_CONFIG = Path("agents/tech-papers/sources.json")
+DEFAULT_ARCHIVE_ROOT = Path("data/tech-papers")
 DEFAULT_ENV_FILE = Path.home() / ".openclaw" / ".env"
 DEFAULT_TIMEZONE = "Asia/Shanghai"
-USER_AGENT = "OpenClawProductNews/1.0"
+DEFAULT_EMAIL_TO = "13827420406@qq.com"
+USER_AGENT = "OpenClawTechPapers/1.0"
 ENV_ALIASES = {
-    "PRODUCT_NEWS_EMAIL_TO": ("MAIL_TO",),
+    "TECH_PAPERS_EMAIL_TO": ("MAIL_TO", "PRODUCT_NEWS_EMAIL_TO"),
     "SMTP_HOST": ("QQ_SMTP_HOST",),
     "SMTP_PORT": ("QQ_SMTP_PORT",),
     "SMTP_USER": ("QQ_SMTP_USER",),
     "SMTP_PASSWORD": ("QQ_SMTP_PASS",),
-    "PRODUCT_NEWS_TIMEZONE": ("TIMEZONE",),
+    "TECH_PAPERS_TIMEZONE": ("TIMEZONE", "PRODUCT_NEWS_TIMEZONE"),
 }
 
 
 @dataclass(frozen=True)
-class NewsItem:
+class PaperItem:
     title: str
     url: str
     source: str
     category: str
     summary: str
     published_at: datetime | None
+    authors: str = ""
+    pdf_url: str = ""
+    code_url: str = ""
     weight: int = 1
 
 
 @dataclass(frozen=True)
-class ScoredNewsItem:
-    item: NewsItem
+class ScoredPaperItem:
+    item: PaperItem
     score: int
     reasons: tuple[str, ...]
 
@@ -64,10 +68,9 @@ class ScoredNewsItem:
 load_env_file = utils.load_env_file
 load_config = utils.load_config
 parse_datetime = utils.parse_datetime
-parse_iso_datetime = utils.parse_datetime
 strip_markup = utils.strip_markup
-text_from_element = utils.text_from_element
 atom_text = utils.atom_text
+text_from_element = utils.text_from_element
 one_line = utils.one_line
 linkify_text = utils.linkify_text
 render_email_html = utils.render_email_html
@@ -77,16 +80,52 @@ archive_briefing = utils.archive_briefing
 def apply_env_aliases() -> None:
     utils.apply_env_aliases(ENV_ALIASES)
 
-    if not os.environ.get("PRODUCT_NEWS_SEARCH_PROVIDER") and os.environ.get("TAVILY_API_KEY"):
-        os.environ["PRODUCT_NEWS_SEARCH_PROVIDER"] = "tavily"
+    if not os.environ.get("TECH_PAPERS_EMAIL_TO"):
+        os.environ["TECH_PAPERS_EMAIL_TO"] = DEFAULT_EMAIL_TO
 
 
 def fetch_json(url: str, headers: dict[str, str] | None = None) -> Any:
-    return utils.fetch_json(url, user_agent=USER_AGENT, timeout=20, headers=headers)
+    return utils.fetch_json(url, user_agent=USER_AGENT, timeout=25, headers=headers)
 
 
 def fetch_text(url: str, headers: dict[str, str] | None = None) -> str:
-    return utils.fetch_text(url, user_agent=USER_AGENT, timeout=20, headers=headers)
+    return utils.fetch_text(url, user_agent=USER_AGENT, timeout=25, headers=headers)
+
+
+def parse_arxiv_items(
+    xml_text: str,
+    *,
+    source: str,
+    category: str,
+    weight: int,
+    timezone: ZoneInfo,
+) -> list[PaperItem]:
+    root = ET.fromstring(xml_text)
+    items: list[PaperItem] = []
+
+    for entry in root.findall(".//{http://www.w3.org/2005/Atom}entry"):
+        title = re.sub(r"\s+", " ", atom_text(entry, "title")).strip()
+        summary = strip_markup(atom_text(entry, "summary"))
+        published = parse_datetime(atom_text(entry, "published") or atom_text(entry, "updated"), timezone)
+        authors = ", ".join(
+            atom_text(author, "name")
+            for author in entry.findall("{http://www.w3.org/2005/Atom}author")
+            if atom_text(author, "name")
+        )
+        link = atom_text(entry, "id")
+        pdf_url = ""
+        for child in entry:
+            if child.tag.rsplit("}", 1)[-1] != "link":
+                continue
+            href = child.attrib.get("href", "")
+            if child.attrib.get("title") == "pdf" or child.attrib.get("type") == "application/pdf":
+                pdf_url = href
+            elif not link and href:
+                link = href
+        if title and link:
+            items.append(PaperItem(title, link, source, category, summary, published, authors, pdf_url, weight=weight))
+
+    return items
 
 
 def parse_rss_items(
@@ -96,19 +135,51 @@ def parse_rss_items(
     category: str,
     weight: int,
     timezone: ZoneInfo,
-) -> list[NewsItem]:
+) -> list[PaperItem]:
     return utils.parse_rss_items(
         xml_text,
         source=source,
         category=category,
         weight=weight,
         timezone=timezone,
-        item_factory=NewsItem,
+        item_factory=PaperItem,
     )
 
 
-def collect_rss(config: dict[str, Any], timezone: ZoneInfo) -> list[NewsItem]:
-    items: list[NewsItem] = []
+def collect_arxiv(config: dict[str, Any], timezone: ZoneInfo) -> list[PaperItem]:
+    items: list[PaperItem] = []
+    endpoint = "https://export.arxiv.org/api/query"
+    for source in config.get("arxiv", []):
+        query = source.get("query")
+        if not query:
+            continue
+        params = urllib.parse.urlencode(
+            {
+                "search_query": query,
+                "start": "0",
+                "max_results": str(source.get("max_results", 40)),
+                "sortBy": "submittedDate",
+                "sortOrder": "descending",
+            }
+        )
+        try:
+            xml_text = fetch_text(f"{endpoint}?{params}")
+            items.extend(
+                parse_arxiv_items(
+                    xml_text,
+                    source=source.get("name", "arXiv"),
+                    category=source.get("category", "paper"),
+                    weight=int(source.get("weight", 1)),
+                    timezone=timezone,
+                )
+            )
+        except (ET.ParseError, KeyError, OSError, urllib.error.URLError) as exc:
+            print(f"warning: failed to collect arXiv source {source.get('name')}: {exc}", file=sys.stderr)
+    return items
+
+
+def collect_rss(config: dict[str, Any], timezone: ZoneInfo) -> list[PaperItem]:
+    items: list[PaperItem] = []
     for source in config.get("rss", []):
         try:
             xml_text = fetch_text(source["url"])
@@ -126,44 +197,17 @@ def collect_rss(config: dict[str, Any], timezone: ZoneInfo) -> list[NewsItem]:
     return items
 
 
-def collect_github_releases(config: dict[str, Any], timezone: ZoneInfo) -> list[NewsItem]:
-    items: list[NewsItem] = []
-    headers = {}
-    if os.environ.get("GITHUB_TOKEN"):
-        headers["Authorization"] = f"Bearer {os.environ['GITHUB_TOKEN']}"
-
-    for source in config.get("github_releases", []):
-        repo = source.get("repo")
-        if not repo:
-            continue
-        url = f"https://api.github.com/repos/{repo}/releases?per_page=5"
-        try:
-            releases = fetch_json(url, headers=headers)
-        except (OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
-            print(f"warning: failed to collect GitHub releases {repo}: {exc}", file=sys.stderr)
-            continue
-
-        for release in releases:
-            title = release.get("name") or release.get("tag_name")
-            link = release.get("html_url")
-            if not title or not link:
-                continue
-            items.append(
-                NewsItem(
-                    title=f"{source.get('name', repo)} {title}",
-                    url=link,
-                    source=f"GitHub: {repo}",
-                    category=source.get("category", "open_source"),
-                    summary=strip_markup(release.get("body") or ""),
-                    published_at=parse_iso_datetime(release.get("published_at"), timezone),
-                    weight=int(source.get("weight", 1)),
-                )
-            )
-    return items
+def build_search_queries(config: dict[str, Any]) -> list[str]:
+    return utils.build_search_queries(
+        config,
+        watched_key="watched_topics",
+        max_queries_env="TECH_PAPERS_MAX_SEARCH_QUERIES",
+        default_max_queries=20,
+    )
 
 
-def collect_search(config: dict[str, Any], timezone: ZoneInfo) -> list[NewsItem]:
-    provider = os.environ.get("PRODUCT_NEWS_SEARCH_PROVIDER", "").lower().strip()
+def collect_search(config: dict[str, Any], timezone: ZoneInfo) -> list[PaperItem]:
+    provider = os.environ.get("TECH_PAPERS_SEARCH_PROVIDER", "").lower().strip()
     if provider == "brave" and os.environ.get("BRAVE_SEARCH_API_KEY"):
         return collect_brave_search(config, timezone)
     if provider == "tavily" and os.environ.get("TAVILY_API_KEY"):
@@ -171,17 +215,8 @@ def collect_search(config: dict[str, Any], timezone: ZoneInfo) -> list[NewsItem]
     return []
 
 
-def build_search_queries(config: dict[str, Any]) -> list[str]:
-    return utils.build_search_queries(
-        config,
-        watched_key="watched_entities",
-        max_queries_env="PRODUCT_NEWS_MAX_SEARCH_QUERIES",
-        default_max_queries=30,
-    )
-
-
-def collect_brave_search(config: dict[str, Any], timezone: ZoneInfo) -> list[NewsItem]:
-    items: list[NewsItem] = []
+def collect_brave_search(config: dict[str, Any], timezone: ZoneInfo) -> list[PaperItem]:
+    items: list[PaperItem] = []
     headers = {
         "Accept": "application/json",
         "X-Subscription-Token": os.environ["BRAVE_SEARCH_API_KEY"],
@@ -198,27 +233,27 @@ def collect_brave_search(config: dict[str, Any], timezone: ZoneInfo) -> list[New
             link = result.get("url") or ""
             if title and link:
                 items.append(
-                    NewsItem(
+                    PaperItem(
                         title=title,
                         url=link,
                         source=f"Brave Search: {query}",
                         category="search",
                         summary=strip_markup(result.get("description") or ""),
-                        published_at=parse_iso_datetime(result.get("page_age"), timezone),
+                        published_at=parse_datetime(result.get("page_age"), timezone),
                         weight=1,
                     )
                 )
     return items
 
 
-def collect_tavily_search(config: dict[str, Any], timezone: ZoneInfo) -> list[NewsItem]:
-    items: list[NewsItem] = []
+def collect_tavily_search(config: dict[str, Any], timezone: ZoneInfo) -> list[PaperItem]:
+    items: list[PaperItem] = []
     endpoint = "https://api.tavily.com/search"
     for query in build_search_queries(config):
         payload = json.dumps(
             {
                 "query": query,
-                "topic": "news",
+                "topic": "general",
                 "search_depth": "basic",
                 "max_results": 5,
                 "time_range": "day",
@@ -235,7 +270,7 @@ def collect_tavily_search(config: dict[str, Any], timezone: ZoneInfo) -> list[Ne
             method="POST",
         )
         try:
-            with urllib.request.urlopen(request, timeout=20) as response:
+            with urllib.request.urlopen(request, timeout=25) as response:
                 data = json.loads(response.read().decode("utf-8"))
         except (OSError, urllib.error.URLError, json.JSONDecodeError) as exc:
             print(f"warning: Tavily search failed for {query}: {exc}", file=sys.stderr)
@@ -245,25 +280,25 @@ def collect_tavily_search(config: dict[str, Any], timezone: ZoneInfo) -> list[Ne
             link = result.get("url") or ""
             if title and link:
                 items.append(
-                    NewsItem(
+                    PaperItem(
                         title=title,
                         url=link,
                         source=f"Tavily Search: {query}",
                         category="search",
                         summary=strip_markup(result.get("content") or ""),
-                        published_at=parse_iso_datetime(result.get("published_date"), timezone),
+                        published_at=parse_datetime(result.get("published_date"), timezone),
                         weight=1,
                     )
                 )
     return items
 
 
-def is_recent(item: NewsItem, now: datetime, lookback_hours: int) -> bool:
+def is_recent(item: PaperItem, now: datetime, lookback_hours: int) -> bool:
     return utils.is_recent(item, now, lookback_hours)
 
 
-def score_item(item: NewsItem, keywords: list[str], now: datetime) -> ScoredNewsItem:
-    haystack = f"{item.title} {item.summary}".lower()
+def score_item(item: PaperItem, keywords: list[str], now: datetime) -> ScoredPaperItem:
+    haystack = f"{item.title} {item.summary} {item.authors}".lower()
     score = item.weight
     reasons: list[str] = []
 
@@ -272,50 +307,61 @@ def score_item(item: NewsItem, keywords: list[str], now: datetime) -> ScoredNews
             score += 2
             reasons.append(keyword)
 
-    if re.search(r"\b(launch|released|release|announces|introduces|beta|preview|open[- ]source)\b", haystack):
+    if re.search(r"\b(code|github|project page|dataset|benchmark|model|checkpoint|open[- ]source)\b", haystack):
+        score += 3
+        reasons.append("reproducibility")
+
+    if re.search(r"\b(reasoning|agent|robot|robotics|embodied|humanoid|multimodal|vla|inference|post[- ]training)\b", haystack):
         score += 4
-        reasons.append("product-release")
+        reasons.append("core-topic")
 
     category_bonus = {
-        "tech_giant": 3,
-        "open_source": 3,
+        "llm": 4,
         "robotics": 4,
-        "startup": 3,
+        "multimodal": 3,
+        "agent": 3,
+        "systems": 3,
+        "hf_papers": 3,
+        "conference": 3,
         "search": 1,
-    }.get(item.category, 0)
+    }.get(item.category, 1)
     score += category_bonus
 
-    if item.published_at is not None and now - item.published_at <= timedelta(hours=30):
+    if item.published_at is not None and now - item.published_at <= timedelta(hours=48):
         score += 3
         reasons.append("recent")
 
-    return ScoredNewsItem(item=item, score=score, reasons=tuple(dict.fromkeys(reasons)))
+    return ScoredPaperItem(item=item, score=score, reasons=tuple(dict.fromkeys(reasons)))
 
 
-def dedupe_key(item: NewsItem) -> str:
+def dedupe_key(item: PaperItem) -> str:
+    arxiv_match = re.search(r"arxiv\.org/(?:abs|pdf)/([0-9.]+)", item.url)
+    if arxiv_match:
+        return f"arxiv:{arxiv_match.group(1)}"
+
     parsed = urllib.parse.urlparse(item.url)
     path = re.sub(r"/+$", "", parsed.path)
     if parsed.netloc and path:
         return f"{parsed.netloc.lower()}{path.lower()}"
     normalized_title = re.sub(r"[^a-z0-9]+", " ", item.title.lower()).strip()
-    return normalized_title[:90]
+    return normalized_title[:100]
 
 
 def select_top_items(
-    items: list[NewsItem],
+    items: list[PaperItem],
     *,
     keywords: list[str],
     now: datetime,
     lookback_hours: int,
     limit: int,
-) -> list[ScoredNewsItem]:
+) -> list[ScoredPaperItem]:
     return utils.select_top_items(
         items,
         keywords=keywords,
         now=now,
         lookback_hours=lookback_hours,
         limit=limit,
-        min_score=5,
+        min_score=6,
         dedupe_key=dedupe_key,
         score_item=score_item,
         score_value=lambda scored: scored.score,
@@ -323,40 +369,23 @@ def select_top_items(
     )
 
 
-def render_briefing(
-    items: list[ScoredNewsItem],
-    *,
-    run_date: datetime,
-    briefing: dict[str, Any] | None = None,
-) -> tuple[str, str]:
-    briefing = briefing or {}
-    report_name = str(briefing.get("report_name", "产品新闻助手日报"))
-    findings_heading = str(briefing.get("findings_heading", "今日主要发现"))
-    no_items_message = str(
-        briefing.get("no_items_message", "今天没有筛选出足够高置信度的 AI/机器人产品发布信号。")
-    )
-    empty_action = str(briefing.get("empty_action", "建议检查新闻源、搜索接口配额和脚本日志。"))
-    trend_intro = str(briefing.get("trend_intro", "今日高相关信号集中在"))
-    source_policy = str(
-        briefing.get("source_policy", "搜索接口结果仅作为补漏，正式判断优先采用官方源、RSS 和 GitHub Release。")
-    )
-    follow_up_note = str(briefing.get("follow_up_note", "对搜索来源和无发布时间来源保持低置信度，必要时人工打开原文确认。"))
+def render_briefing(items: list[ScoredPaperItem], *, run_date: datetime) -> tuple[str, str]:
     date_text = run_date.strftime("%Y-%m-%d")
-    subject = f"{report_name} - {date_text}"
+    subject = f"技术论文助手日报 - {date_text}"
 
     lines = [
         f"# {subject}",
         "",
-        f"## {findings_heading}",
+        "## 今日主要发现",
         "",
     ]
 
     if not items:
         lines.extend(
             [
-                no_items_message,
+                "今天没有筛选出足够高置信度的大模型/机器人技术论文信号。",
                 "",
-                empty_action,
+                "建议检查 arXiv、RSS、搜索接口配额和脚本日志。",
             ]
         )
         return subject, "\n".join(lines).strip() + "\n"
@@ -364,8 +393,13 @@ def render_briefing(
     for index, scored in enumerate(items, start=1):
         item = scored.item
         published = item.published_at.strftime("%Y-%m-%d %H:%M") if item.published_at else "时间未标注"
-        summary = one_line(item.summary) or "来源未提供摘要，建议点开链接确认细节。"
+        summary = one_line(item.summary) or "来源未提供摘要，建议点开链接确认论文贡献。"
         reasons = ", ".join(scored.reasons[:5]) or "source-weight"
+        links = item.url
+        if item.pdf_url and item.pdf_url != item.url:
+            links = f"{links} ; PDF: {item.pdf_url}"
+        if item.code_url:
+            links = f"{links} ; Code: {item.code_url}"
         lines.extend(
             [
                 f"{index}. {item.title}",
@@ -374,22 +408,24 @@ def render_briefing(
                 f"   - 时间：{published}",
                 f"   - 发生了什么：{summary}",
                 f"   - 为什么重要：匹配 {reasons}，综合评分 {scored.score}。",
-                f"   - 链接：{item.url}",
+                f"   - 链接：{links}",
                 "",
             ]
         )
+        if item.authors:
+            lines.insert(-1, f"   - 作者：{one_line(item.authors, 180)}")
 
     categories = sorted({scored.item.category for scored in items})
     lines.extend(
         [
             "## 趋势观察",
             "",
-            f"- {trend_intro}：{', '.join(categories)}。",
-            f"- {source_policy}",
+            f"- 今日高相关论文集中在：{', '.join(categories)}。",
+            "- 搜索接口结果仅作为补漏，正式判断优先采用 arXiv、会议页面、官方项目页和论文元数据。",
             "",
             "## 待跟进",
             "",
-            f"- {follow_up_note}",
+            "- 对搜索来源、无摘要来源和无代码论文保持低置信度，必要时人工打开原文确认。",
         ]
     )
     return subject, "\n".join(lines).strip() + "\n"
@@ -399,8 +435,8 @@ def build_email_message(subject: str, body: str) -> EmailMessage:
     return qq_mail_tool.build_email_message(
         subject=subject,
         body=body,
-        from_addr=qq_mail_tool.resolve_sender(env_key="PRODUCT_NEWS_EMAIL_FROM"),
-        to=qq_mail_tool.resolve_recipient(env_key="PRODUCT_NEWS_EMAIL_TO"),
+        from_addr=qq_mail_tool.resolve_sender(env_key="TECH_PAPERS_EMAIL_FROM"),
+        to=qq_mail_tool.resolve_recipient(env_key="TECH_PAPERS_EMAIL_TO"),
         html_body=render_email_html(body, subject),
     )
 
@@ -409,27 +445,27 @@ def send_email(subject: str, body: str) -> None:
     qq_mail_tool.send_email(
         subject=subject,
         body=body,
-        to_env_key="PRODUCT_NEWS_EMAIL_TO",
-        from_env_key="PRODUCT_NEWS_EMAIL_FROM",
+        to_env_key="TECH_PAPERS_EMAIL_TO",
+        from_env_key="TECH_PAPERS_EMAIL_FROM",
         html_body=render_email_html(body, subject),
     )
 
 
-def collect_items(config: dict[str, Any], timezone: ZoneInfo) -> list[NewsItem]:
-    items: list[NewsItem] = []
+def collect_items(config: dict[str, Any], timezone: ZoneInfo) -> list[PaperItem]:
+    items: list[PaperItem] = []
+    items.extend(collect_arxiv(config, timezone))
     items.extend(collect_rss(config, timezone))
-    items.extend(collect_github_releases(config, timezone))
     items.extend(collect_search(config, timezone))
     return items
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Send the daily product-news briefing.")
-    parser.add_argument("--config", default=str(DEFAULT_CONFIG), help="Path to product-news sources JSON.")
+    parser = argparse.ArgumentParser(description="Send the daily technical-paper briefing.")
+    parser.add_argument("--config", default=str(DEFAULT_CONFIG), help="Path to technical-paper sources JSON.")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV_FILE), help="Path to .env file with SMTP/search secrets.")
     parser.add_argument("--archive-root", default=str(DEFAULT_ARCHIVE_ROOT), help="Directory for Markdown archives.")
-    parser.add_argument("--lookback-hours", type=int, default=30, help="Only include recent items inside this window.")
-    parser.add_argument("--limit", type=int, default=5, help="Maximum findings to include.")
+    parser.add_argument("--lookback-hours", type=int, default=120, help="Only include recent items inside this window.")
+    parser.add_argument("--limit", type=int, default=8, help="Maximum findings to include.")
     parser.add_argument("--dry-run", action="store_true", help="Print briefing and do not send email.")
     parser.add_argument("--no-email", action="store_true", help="Archive briefing without sending email.")
     parser.add_argument("--timezone", help="IANA timezone for the run date and schedule expectation.")
@@ -440,7 +476,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     load_env_file(Path(args.env_file))
     apply_env_aliases()
-    timezone = ZoneInfo(args.timezone or os.environ.get("PRODUCT_NEWS_TIMEZONE", DEFAULT_TIMEZONE))
+    timezone = ZoneInfo(args.timezone or os.environ.get("TECH_PAPERS_TIMEZONE", DEFAULT_TIMEZONE))
     now = datetime.now(timezone)
 
     config = load_config(Path(args.config))
@@ -452,7 +488,7 @@ def main(argv: list[str] | None = None) -> int:
         lookback_hours=args.lookback_hours,
         limit=args.limit,
     )
-    subject, body = render_briefing(selected, run_date=now, briefing=config.get("briefing"))
+    subject, body = render_briefing(selected, run_date=now)
     archive_path = archive_briefing(body, Path(args.archive_root), now)
 
     if args.dry_run:
@@ -462,7 +498,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.no_email:
         send_email(subject, body)
-        print(f"Sent briefing to {os.environ.get('PRODUCT_NEWS_EMAIL_TO')}")
+        print(f"Sent briefing to {os.environ.get('TECH_PAPERS_EMAIL_TO')}")
     print(f"Archived briefing to {archive_path}")
     return 0
 
