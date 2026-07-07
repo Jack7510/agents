@@ -4,7 +4,7 @@
 
 ## 目标
 
-每周一、三、五 08:30 通过 OpenClaw cron 收集科技巨头 CEO/CTO、开源社区意见领袖、资深研究员的访谈、博客、播客、演讲和研究观点，筛选 5-8 个重要信号，并把中文战略简报发送到 `13827420406@qq.com`。
+每个工作日 02:00 通过 OpenClaw cron 收集科技巨头 CEO/CTO、开源社区意见领袖、资深研究员的访谈、博客、播客、演讲和研究观点，筛选 5-8 个重要信号，并把中文战略简报发送到 `13827420406@qq.com`。
 
 重点回答：
 
@@ -108,10 +108,10 @@ python3 ~/.openclaw/workspace/skills/product-news/scripts/send_product_news.py
 
 战略信息收集助手只使用 OpenClaw 的 cron 机制，不使用系统 `systemd` 机制。
 
-创建每周一、三、五 `Asia/Shanghai` 08:30 执行的 cron 任务：
+创建每个工作日 `Asia/Shanghai` 02:00 执行的 cron 任务：
 
 ```bash
-ssh admin@47.88.66.246 '~/.npm-global/bin/openclaw cron add --name strategy-intel --cron "30 8 * * 1,3,5" --tz Asia/Shanghai --command-cwd "$HOME/.openclaw/workspace" --command "set -a; . ~/.openclaw/.env; set +a; PRODUCT_NEWS_EMAIL_TO=13827420406@qq.com python3 ~/.openclaw/workspace/skills/product-news/scripts/send_product_news.py --config ~/.openclaw/workspace/skills/strategy-intel/sources.json --archive-root ~/.openclaw/workspace/data/strategy-intel --lookback-hours 96 --limit 8" --timeout-seconds 600 --no-deliver'
+ssh admin@47.88.66.246 '~/.npm-global/bin/openclaw cron add --name strategy-intel --cron "0 2 * * 1-5" --tz Asia/Shanghai --command-cwd "$HOME/.openclaw/workspace" --command "set -a; . ~/.openclaw/.env; set +a; PRODUCT_NEWS_EMAIL_TO=13827420406@qq.com python3 ~/.openclaw/workspace/skills/product-news/scripts/send_product_news.py --config ~/.openclaw/workspace/skills/strategy-intel/sources.json --archive-root ~/.openclaw/workspace/data/strategy-intel --lookback-hours 96 --limit 8" --timeout-seconds 600 --no-deliver'
 ```
 
 查看任务：
@@ -138,6 +138,6 @@ ssh admin@47.88.66.246 '~/.npm-global/bin/openclaw cron run <strategy-intel-job-
 
 ## 仍需补充的信息
 
-- 确认每周一、三、五 08:30 是否合适；如果希望日报，可把 cron 表达式改为 `30 8 * * *`。
+- 确认工作日 02:00 是否合适；如果希望周末也运行，可把 cron 表达式改为 `0 2 * * *`。
 - 补充必须关注或屏蔽的人物、公司、研究机构、播客、YouTube 频道和中文信息源。
 - 决定是否启用搜索接口；如启用，提供 Brave 或 Tavily 的 API Key。
